@@ -76,6 +76,31 @@ function htmlEscape(value) {
 }
 
 /**
+ * 只返回可以公开给浏览器的环境 key。
+ *
+ * Flagsmith 有两类 key：客户端 key（可公开）与服务端 key（`ser.` 前缀，绝不可下发）。
+ * Cloud 模式下用户很容易把服务端私钥填进 FLAGSMITH_ENVIRONMENT_KEY，
+ * 一旦 SSR / SDK 导出把它原样吐到前端，等于把私钥发布到公网。
+ * 因此这里显式白名单：只有显式提供的 FLAGSMITH_CLIENT_KEY，或明确不是 ser. 的
+ * environment key，才会被输出；否则一律返回占位符。
+ */
+export function safeClientKey(env = {}) {
+  const explicit = env.FLAGSMITH_CLIENT_KEY;
+  if (typeof explicit === 'string' && explicit.trim() && !explicit.trim().startsWith('ser.')) {
+    return explicit.trim();
+  }
+  const environmentKey = env.FLAGSMITH_ENVIRONMENT_KEY;
+  if (
+    typeof environmentKey === 'string'
+    && environmentKey.trim()
+    && !environmentKey.trim().startsWith('ser.')
+  ) {
+    return environmentKey.trim();
+  }
+  return 'YOUR_CLIENT_SIDE_ENVIRONMENT_KEY';
+}
+
+/**
  * 用真实 HTML 模板渲染首屏，保证 SSR 与客户端水合一致（无闪烁）。
  */
 async function renderIndex({ variant, visitorId, envKey, apiUrl }) {
@@ -119,7 +144,7 @@ export function createApp(options = {}) {
       const html = await renderIndex({
         variant,
         visitorId,
-        envKey: env.FLAGSMITH_ENVIRONMENT_KEY,
+        envKey: safeClientKey(env),
         apiUrl: env.FLAGSMITH_API_URL,
       });
       res.set('Cache-Control', 'no-store');
@@ -241,7 +266,7 @@ export function createApp(options = {}) {
       const visitorId = resolveVisitorId(req, res);
       const language = typeof req.body?.language === 'string' ? req.body.language : 'node';
       const snippet = buildSdkSnippet(language, {
-        apiKey: env.FLAGSMITH_ENVIRONMENT_KEY ?? 'YOUR_ENV_KEY',
+        apiKey: safeClientKey(env),
         apiUrl: env.FLAGSMITH_API_URL ?? 'https://edge.api.flagsmith.com/api/v1/',
       });
       trackConversion(client, EVENT_GUARDRAIL, visitorId, {

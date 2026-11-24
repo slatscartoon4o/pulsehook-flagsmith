@@ -7,7 +7,7 @@
  *  2. 真实 admin password（逐字节精确匹配）
  *  3. 真实 admin token（逐字节精确匹配 + 通用 40-hex token 形态）
  *  4. 通用密钥形态（sk- / Bearer / Token 40hex / X-Environment-Key 带真值）
- *  5. 本机绝对路径（F:\、C:\Users\、F:/AllJDK 等）
+ *  5. 本机绝对路径（盘符: 开头的路径、用户主目录等机器特定前缀）
  *
  * 用法：node scripts/secret-scan.mjs   （退出码非 0 即有泄露）
  */
@@ -69,10 +69,11 @@ const PATTERNS = [
   { label: 'OpenAI-style key', re: /sk-[0-9A-Za-z]{20,}/g },
   { label: 'postgres password literal', re: /POSTGRES_PASSWORD\s*=\s*(?!change_me)\S+/gi },
   { label: 'Django secret literal', re: /SECRET_KEY\s*=\s*(?!change_me)\S+/gi },
-  { label: 'Windows absolute path F:\\', re: /F:\\+[A-Za-z]/g },
-  { label: 'Windows absolute path C:\\Users\\', re: /C:\\+Users\\/gi },
-  { label: 'drive-prefixed posix path F:/', re: /\bF:\/+[A-Za-z]/g },
-  { label: 'user home path /Users/', re: /\/Users\/[A-Za-z]/g },
+  // 机器特定路径：任何盘符都在此列，不绑定具体机器
+  { label: 'Windows absolute path (any drive)', re: /\b[A-Za-z]:\\+[A-Za-z0-9_.\-]/g },
+  { label: 'drive-prefixed posix path (any drive)', re: /\b[A-Za-z]:\/+[A-Za-z0-9_.\-]/g },
+  { label: 'user home path (posix)', re: /\/Users\/[A-Za-z]/g },
+  { label: 'user home path (unix /home)', re: /\/home\/[A-Za-z]/g },
 ];
 
 const allow = [

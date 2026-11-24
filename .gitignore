@@ -2,7 +2,10 @@ node_modules/
 .env
 flagsmith.env
 artifacts/tmp/
+# 录制的 webm 是中间产物；只随仓库发布最终那支 mp4，评委可直接播放
+docs/demo/*.webm
 docs/demo/*.mp4
+!docs/demo/toggle-wars-demo.mp4
 demo-artifacts/
 *.log
 .DS_Store

@@ -161,6 +161,23 @@ async function shotVariant(browser) {
       return getComputedStyle(empty).display !== 'none' && box.width > 0 && box.height > 0;
     });
     if (emptyVisible) throw new Error('empty-state placeholder still visible next to the 200 response');
+    // toast 是 position:fixed 的，fullPage 截图里会浮在 JSON 上遮住 echoed_event 行。
+    // 截图前等它自然淡出并确认不可见（视频里 toast 弹出是正常的，那一处不处理）。
+    await page.waitForFunction(() => {
+      const toast = document.getElementById('toast');
+      if (!toast) return true;
+      const style = getComputedStyle(toast);
+      return toast.hidden || style.opacity === '0' || style.display === 'none';
+    }, null, { timeout: 12000 });
+    await page.waitForTimeout(300);
+    const toastVisible = await page.evaluate(() => {
+      const toast = document.getElementById('toast');
+      if (!toast || toast.hidden) return false;
+      const style = getComputedStyle(toast);
+      return style.display !== 'none' && Number(style.opacity) > 0.05
+        && toast.getBoundingClientRect().width > 0;
+    });
+    if (toastVisible) throw new Error('toast is still visible and would overlay the response JSON');
     await assertLayout(page, 'variant');
     await shootFull(page, path.join(SHOTS, '2-variant-sandbox.png'));
     log('  saved 2-variant-sandbox.png');
@@ -271,19 +288,14 @@ function findFfmpeg() {
   } catch { /* not on PATH */ }
 
   // 显式覆盖（例如用户装了一个带 libx264 的完整版）：只认 FFMPEG_PATH 环境变量，
-  // 不内置任何本机绝对路径，避免把个人目录结构带进 git。
+  // 不内置任何绝对路径，避免把某台机器的目录结构带进仓库。
   if (process.env.FFMPEG_PATH && existsSync(process.env.FFMPEG_PATH)) {
     candidates.unshift(process.env.FFMPEG_PATH);
   }
-  for (const guess of [
-    'C:/ffmpeg/bin/ffmpeg.exe',
-    'ffmpeg.exe',
-    'ffmpeg',
-  ]) {
+  // 只探测"相对于可执行文件目录"与"PATH 上"的 ffmpeg，不写死盘符。
+  for (const guess of ['ffmpeg.exe', 'ffmpeg']) {
     try {
-      const full = guess.includes('/')
-        ? guess
-        : path.join(path.dirname(process.execPath), guess);
+      const full = path.join(path.dirname(process.execPath), guess);
       if (existsSync(full)) candidates.push(full);
     } catch { /* skip malformed guess */ }
   }

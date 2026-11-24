@@ -31,7 +31,7 @@ import {
   erfc,
   summariseRates,
 } from '../src/stats-audit.js';
-import { buildDecision, buildSdkSnippet, resolveVisitorId, VISITOR_COOKIE } from '../src/server.js';
+import { buildDecision, buildSdkSnippet, resolveVisitorId, safeClientKey, VISITOR_COOKIE } from '../src/server.js';
 import { verdictFor } from '../src/verdict.js';
 
 /* ---------------------------------------------------------------- helpers */
@@ -318,6 +318,48 @@ describe('buildSdkSnippet', () => {
   it('never leaks a real admin token', () => {
     const snippet = buildSdkSnippet('node', { apiKey: 'k', apiUrl: 'http://x/api/v1/' });
     expect(snippet).not.toMatch(/Token\s+[0-9a-f]{40}/);
+  });
+});
+
+/* -------------------------------------------------- 7b. server-key redaction */
+
+describe('safeClientKey (never echoes a server-side key)', () => {
+  const SERVER_KEY = 'ser.' + 'A'.repeat(40);
+
+  it('replaces a ser.* server key with a placeholder instead of echoing it', () => {
+    const key = safeClientKey({ FLAGSMITH_ENVIRONMENT_KEY: SERVER_KEY });
+    expect(key).toBe('YOUR_CLIENT_SIDE_ENVIRONMENT_KEY');
+    expect(key).not.toContain('ser.');
+    expect(key).not.toContain(SERVER_KEY);
+  });
+
+  it('prefers an explicit client key even when the environment key is a server key', () => {
+    const key = safeClientKey({
+      FLAGSMITH_ENVIRONMENT_KEY: SERVER_KEY,
+      FLAGSMITH_CLIENT_KEY: 'client_side_key_abc',
+    });
+    expect(key).toBe('client_side_key_abc');
+  });
+
+  it('passes through a non-ser environment key (the normal self-hosted case)', () => {
+    // 用虚构值，绝不在仓库里出现真实环境 key
+    expect(safeClientKey({ FLAGSMITH_ENVIRONMENT_KEY: 'fake_env_key_for_tests' }))
+      .toBe('fake_env_key_for_tests');
+  });
+
+  it('falls back to the placeholder when nothing usable is configured', () => {
+    expect(safeClientKey({})).toBe('YOUR_CLIENT_SIDE_ENVIRONMENT_KEY');
+    expect(safeClientKey({ FLAGSMITH_ENVIRONMENT_KEY: '   ' })).toBe('YOUR_CLIENT_SIDE_ENVIRONMENT_KEY');
+  });
+
+  it('never leaks a ser.* key into a rendered SDK snippet', () => {
+    const snippet = buildSdkSnippet('node', {
+      apiKey: safeClientKey({ FLAGSMITH_ENVIRONMENT_KEY: SERVER_KEY }),
+      apiUrl: 'http://x/api/v1/',
+    });
+    expect(snippet).not.toContain(SERVER_KEY);
+    expect(snippet).not.toMatch(/ser\.[A-Za-z0-9]/);
+    expect(snippet).toContain('YOUR_CLIENT_SIDE_ENVIRONMENT_KEY');
   });
 });
 
