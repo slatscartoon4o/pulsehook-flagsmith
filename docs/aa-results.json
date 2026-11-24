@@ -1,0 +1,99 @@
+{
+  "generatedAt": "2026-11-24T21:45:22.528Z",
+  "experiment": {
+    "id": 35,
+    "name": "A/A Sanity: Checklist vs Its Twin"
+  },
+  "traffic": {
+    "method": "real HTTP requests, one cookie jar per visitor",
+    "visitors": 400,
+    "seed": 20261126,
+    "note": "Simulated traffic, disclosed as such. Both arms render an identical page."
+  },
+  "clientSide": {
+    "exposures": {
+      "control": 201,
+      "aa_twin": 199
+    },
+    "primaryConversions": {
+      "control": 91,
+      "aa_twin": 84
+    },
+    "guardrailConversions": {
+      "control": 61,
+      "aa_twin": 70
+    },
+    "srm": {
+      "chiSq": 0.01,
+      "p": 0.9203443254459409,
+      "expected": 200
+    },
+    "primaryRates": {
+      "controlRate": 0.4527363184079602,
+      "variantRate": 0.4221105527638191,
+      "lift": -0.0676459219172787,
+      "ciLow": -0.2823016752920133,
+      "ciHigh": 0.1470098314574559
+    },
+    "guardrailRates": {
+      "controlRate": 0.3034825870646766,
+      "variantRate": 0.35175879396984927,
+      "lift": 0.15907405881868364,
+      "ciLow": -0.14367762422785407,
+      "ciHigh": 0.46182574186522135
+    },
+    "stableIdentityMismatches": 0,
+    "mismatchSample": []
+  },
+  "flagsmith": {
+    "asOfExposures": "2026-11-24T21:44:58.481825Z",
+    "asOfResults": "2026-11-24T21:45:10.491669Z",
+    "exposuresTimeseries": {
+      "aa_twin": 204,
+      "control": 210
+    },
+    "srmPValue": null,
+    "metrics": [
+      {
+        "variants": {
+          "aa_twin": {
+            "n": 204,
+            "sum": 84,
+            "sum_squares": 84
+          },
+          "control": {
+            "n": 210,
+            "sum": 91,
+            "sum_squares": 91
+          }
+        },
+        "inference": {
+          "aa_twin": {
+            "lift": -0.04977375565610868,
+            "ci_low": -0.26451041593811137,
+            "ci_high": 0.16496290462589402,
+            "chance_to_win": 0.32480661940980216
+          }
+        },
+        "metric_id": 34,
+        "conversions_timeseries": {
+          "points": [
+            {
+              "bucket": "2026-11-24T21:00:00+00:00",
+              "converted_identities": {
+                "aa_twin": 84,
+                "control": 91
+              }
+            }
+          ],
+          "granularity": "hour"
+        }
+      }
+    ]
+  },
+  "verdict": {
+    "srmOk": true,
+    "identicalPages": true,
+    "wiringUnbiased": true
+  }
+}

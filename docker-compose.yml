@@ -1,0 +1,90 @@
+# PulseHook × Flagsmith — Toggle Wars Track 01
+#
+# 本地自托管 Flagsmith + PostgreSQL。对外端口默认 18000（API/Web）与 18001（task processor 健康检查），
+# 刻意避开 80/3000/8000/8080 等常用端口；可用环境变量覆盖。
+#
+# 用法：
+#   docker compose up -d
+#   docker compose logs -f flagsmith
+#
+# 注意：本文件不含任何真实密钥；所有敏感值请在 .env（已 gitignore）中提供，
+# 参见 .env.example。默认值仅供本地开发。
+
+name: pulsehook-flagsmith
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: pulsehook_flagsmith_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-flagsmith}
+      POSTGRES_USER: ${POSTGRES_USER:-flagsmith}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pulsehook_local_pg}
+    volumes:
+      - pulsehook_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-flagsmith} -d ${POSTGRES_DB:-flagsmith}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  flagsmith:
+    image: flagsmith/flagsmith:latest
+    container_name: pulsehook_flagsmith
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${FLAGSMITH_PORT:-18000}:8000"
+    environment:
+      # --- 数据库 ---
+      DJANGO_DB_ENGINE: django.db.backends.postgresql
+      DATABASE_URL: postgresql://${POSTGRES_USER:-flagsmith}:${POSTGRES_PASSWORD:-pulsehook_local_pg}@postgres:5432/${POSTGRES_DB:-flagsmith}
+      # --- 基础 ---
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,flagsmith"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:${FLAGSMITH_PORT:-18000},http://127.0.0.1:${FLAGSMITH_PORT:-18000}"
+      FLAGSMITH_DOMAIN: "localhost:${FLAGSMITH_PORT:-18000}"
+      SECRET_KEY: ${FLAGSMITH_SECRET_KEY:-pulsehook-local-secret-key-not-for-production}
+      # --- 任务执行：task processor 形式（官方推荐用于分析/实验计算） ---
+      TASK_RUN_METHOD: TASK_PROCESSOR
+      ENABLE_TASK_PROCESSOR_HEALTH_CHECK: "true"
+      # --- 分析/实验 ---
+      USE_POSTGRES_FOR_ANALYTICS: "true"
+      EXPERIMENTATION_ENABLED: "true"
+      # --- 允许本地自助注册/登录（仅本地实验用） ---
+      ALLOW_REGISTRATION_WITHOUT_INVITE: "true"
+      ALLOW_ORG_REGISTRATION: "true"
+      DISABLE_INFLUXDB_FEATURES: "true"
+      # 关闭外部依赖的集成，避免本地启动时外呼
+      SEGMENT_ANALYTICS_ENABLED: "false"
+      DISABLE_ANALYTICS_FEATURES: "true"
+    restart: unless-stopped
+
+  flagsmith-task-processor:
+    image: flagsmith/flagsmith:latest
+    container_name: pulsehook_flagsmith_task_processor
+    command: ["run-task-processor"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${FLAGSMITH_PROC_PORT:-18001}:8000"
+    environment:
+      RUN_BY_PROCESSOR: "true"
+      DJANGO_DB_ENGINE: django.db.backends.postgresql
+      DATABASE_URL: postgresql://${POSTGRES_USER:-flagsmith}:${POSTGRES_PASSWORD:-pulsehook_local_pg}@postgres:5432/${POSTGRES_DB:-flagsmith}
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,flagsmith,flagsmith-task-processor"
+      FLAGSMITH_DOMAIN: "localhost:${FLAGSMITH_PORT:-18000}"
+      SECRET_KEY: ${FLAGSMITH_SECRET_KEY:-pulsehook-local-secret-key-not-for-production}
+      TASK_RUN_METHOD: TASK_PROCESSOR
+      USE_POSTGRES_FOR_ANALYTICS: "true"
+      EXPERIMENTATION_ENABLED: "true"
+      DISABLE_INFLUXDB_FEATURES: "true"
+      SEGMENT_ANALYTICS_ENABLED: "false"
+      DISABLE_ANALYTICS_FEATURES: "true"
+    restart: unless-stopped
+
+volumes:
+  pulsehook_pgdata:
+    name: pulsehook_pgdata

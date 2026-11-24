@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PulseHook — Webhook SDK Quickstart</title>
+<meta name="description" content="PulseHook ships webhooks developers can trust. Get to your first delivered event in under two minutes.">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body data-variant="{{VARIANT_KEY}}" data-variant-enabled="{{VARIANT_ENABLED}}" data-visitor="{{VISITOR_ID}}">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h4l2.5-7 5 14L17 12h4"/>
+        </svg>
+      </span>
+      <span class="brand__name">PulseHook</span>
+      <span class="brand__tag">Quickstart</span>
+    </div>
+    <div class="topbar__meta">
+      <span class="pill pill--variant" id="variant-pill" title="Variant assigned by the Flagsmith flag quickstart_experience">
+        <span class="pill__dot" aria-hidden="true"></span>
+        <span id="variant-label">{{VARIANT_LABEL}}</span>
+      </span>
+      <a class="topbar__link" href="/audit">Experiment audit</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <p class="eyebrow">Webhook SDK · Quickstart</p>
+    <h1>Get your first webhook delivered<br class="br-wide"> in under two minutes.</h1>
+    <p class="hero__lede">
+      PulseHook delivers signed, retry-safe webhooks. This page is the exact quickstart
+      developers land on — how it works depends on the variant you were assigned.
+    </p>
+    <ul class="hero__facts">
+      <li><strong>1</strong> endpoint</li>
+      <li><strong>0</strong> dashboards</li>
+      <li><strong>3</strong> retries by default</li>
+    </ul>
+  </section>
+
+  <!-- ============ CONTROL: copy-paste checklist ============ -->
+  <section class="view view--checklist" id="checklist-view" aria-labelledby="checklist-heading">
+    <div class="view__head">
+      <h2 id="checklist-heading">Three steps to a delivered event</h2>
+      <p class="view__sub">Copy each block into your own project and run it. No account needed for this sandbox.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step">
+        <div class="step__index" aria-hidden="true">1</div>
+        <div class="step__body">
+          <h3 class="step__title">Install the SDK</h3>
+          <p class="step__desc">One dependency, no transitive baggage.</p>
+          <div class="code" data-code-block>
+            <div class="code__bar">
+              <span class="code__lang">shell</span>
+              <button class="code__copy" type="button" data-copy-target="step1">Copy</button>
+            </div>
+            <pre id="step1"><code>npm install @pulsehook/sdk</code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step__index" aria-hidden="true">2</div>
+        <div class="step__body">
+          <h3 class="step__title">Point it at your endpoint</h3>
+          <p class="step__desc">The signing secret is printed once, on first delivery.</p>
+          <div class="code" data-code-block>
+            <div class="code__bar">
+              <span class="code__lang">javascript</span>
+              <button class="code__copy" type="button" data-copy-target="step2">Copy</button>
+            </div>
+            <pre id="step2"><code>import { PulseHook } from '@pulsehook/sdk';
+
+const hook = new PulseHook({
+  endpoint: 'https://api.yourapp.dev/webhooks/pulse',
+  events: ['delivery.succeeded', 'delivery.failed'],
+});</code></pre>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step__index" aria-hidden="true">3</div>
+        <div class="step__body">
+          <h3 class="step__title">Send a test event</h3>
+          <p class="step__desc">You should see a <code>delivered</code> receipt within a second.</p>
+          <div class="code" data-code-block>
+            <div class="code__bar">
+              <span class="code__lang">javascript</span>
+              <button class="code__copy" type="button" data-copy-target="step3">Copy</button>
+            </div>
+            <pre id="step3"><code>await hook.send({
+  event: 'delivery.succeeded',
+  data: { order_id: 'ord_1042' },
+});</code></pre>
+          </div>
+        </div>
+      </li>
+    </ol>
+
+    <div class="cta-row">
+      <button class="btn btn--primary" type="button" id="checklist-export">
+        Export SDK snippet
+        <span class="btn__hint">for your repo</span>
+      </button>
+      <span class="cta-row__note">Or open the interactive sandbox — <a href="?force=sandbox" id="force-sandbox-link">assign me the variant</a></span>
+    </div>
+
+    <div class="output" id="checklist-output" hidden>
+      <div class="output__bar">
+        <span class="output__title">Exported to clipboard &amp; printed below</span>
+        <span class="output__badge" id="checklist-export-badge">sdk_snippet_exported</span>
+      </div>
+      <pre class="output__body" id="checklist-output-body"></pre>
+    </div>
+  </section>
+
+  <!-- ============ VARIANT: live interactive sandbox ============ -->
+  <section class="view view--sandbox" id="sandbox-view" aria-labelledby="sandbox-heading">
+    <div class="view__head">
+      <h2 id="sandbox-heading">Live sandbox — send a real webhook</h2>
+      <p class="view__sub">The request below is pre-filled and actually fires. You get a real signed receipt back.</p>
+    </div>
+
+    <div class="sandbox">
+      <div class="sandbox__editor">
+        <div class="code__bar">
+          <span class="code__lang">POST /api/v1/sandbox/ping</span>
+          <span class="code__endpoint">application/json</span>
+        </div>
+        <label class="sr-only" for="sandbox-payload">Request body</label>
+        <textarea id="sandbox-payload" spellcheck="false" rows="10">{
+  "event": "delivery.succeeded",
+  "data": {
+    "order_id": "ord_1042",
+    "amount": 4900
+  }
+}</textarea>
+        <div class="sandbox__actions">
+          <button class="btn btn--primary" type="button" id="sandbox-run">
+            <span class="btn__spinner" aria-hidden="true"></span>
+            <span id="sandbox-run-label">Run request</span>
+          </button>
+          <button class="btn btn--ghost" type="button" id="sandbox-export">
+            Export SDK snippet
+          </button>
+        </div>
+      </div>
+
+      <div class="sandbox__response" id="sandbox-response" data-state="idle" aria-live="polite">
+        <div class="response__empty" id="response-empty">
+          <span class="response__glyph" aria-hidden="true">⌁</span>
+          <p>No response yet. Hit <strong>Run request</strong> to send a real webhook.</p>
+        </div>
+        <div class="response__body" id="response-body" hidden>
+          <div class="response__head">
+            <span class="status-badge" id="response-status">200 OK</span>
+            <span class="response__latency" id="response-latency">— ms</span>
+          </div>
+          <pre class="response__json" id="response-json"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="output" id="sandbox-export-output" hidden>
+      <div class="output__bar">
+        <span class="output__title">Exported SDK snippet</span>
+        <span class="output__badge">sdk_snippet_exported</span>
+      </div>
+      <pre class="output__body" id="sandbox-export-body"></pre>
+    </div>
+  </section>
+
+  <!-- shared: what happens next -->
+  <section class="next">
+    <h2>What happens under the hood</h2>
+    <div class="next__grid">
+      <article class="card">
+        <h3>Signed payloads</h3>
+        <p>Every delivery carries an HMAC-SHA256 signature so you can verify it came from us.</p>
+      </article>
+      <article class="card">
+        <h3>Retry with backoff</h3>
+        <p>Non-2xx responses retry at 1s, 5s and 30s, then land in a dead-letter queue you can replay.</p>
+      </article>
+      <article class="card">
+        <h3>Idempotent by design</h3>
+        <p>Each delivery has a <code>delivery_id</code>. Deduplicate on it and you're safe to retry anything.</p>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bottombar">
+  <div class="bottombar__inner">
+    <span class="bottombar__item">
+      <span class="status-dot" id="fs-status" data-state="unknown" aria-hidden="true"></span>
+      <span id="fs-status-text">Flagsmith: checking…</span>
+    </span>
+    <span class="bottombar__item bottombar__item--muted">
+      experiment <code>quickstart_experience</code> · variant <code id="footer-variant">{{VARIANT_KEY}}</code>
+    </span>
+    <span class="bottombar__item bottombar__item--muted">visitor <code id="footer-visitor">{{VISITOR_ID}}</code></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="application/json" id="pulsehook-config">
+{"variantKey":"{{VARIANT_KEY}}","visitorId":"{{VISITOR_ID}}","apiUrl":"{{API_URL}}"}
+</script>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

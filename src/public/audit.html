@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PulseHook — Experiment audit</title>
+<meta name="description" content="Wiring health checks and the honest read on the checklist-vs-sandbox experiment.">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/audit.css">
+</head>
+<body class="audit-body">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h4l2.5-7 5 14L17 12h4"/>
+        </svg>
+      </span>
+      <span class="brand__name">PulseHook</span>
+      <span class="brand__tag">Audit</span>
+    </div>
+    <div class="topbar__meta">
+      <span class="pill pill--variant" id="audit-status-pill">
+        <span class="pill__dot" aria-hidden="true"></span>
+        <span id="audit-status-text">Loading wiring checks…</span>
+      </span>
+      <a class="topbar__link" href="/">← Back to quickstart</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="audit">
+
+  <section class="audit-hero">
+    <p class="eyebrow">Experiment audit · quickstart_experience</p>
+    <h1>One experiment, read honestly.</h1>
+    <p class="audit-hero__lede">
+      Four wiring checks, the real Flagsmith Bayesian read, and the decision that follows —
+      including the part where the guardrail metric argues against the primary metric.
+    </p>
+  </section>
+
+  <!-- ================= wiring checks ================= -->
+  <section class="panel" aria-labelledby="wiring-heading">
+    <div class="panel__head">
+      <h2 id="wiring-heading">Wiring health</h2>
+      <span class="panel__note" id="wiring-note">the four ways a Flagsmith experiment silently lies</span>
+    </div>
+    <ul class="checks" id="checks">
+      <li class="check" data-check="stable-identity" data-state="pending">
+        <span class="check__icon" aria-hidden="true"></span>
+        <div class="check__body">
+          <h3 class="check__title">Stable visitor identity</h3>
+          <p class="check__detail" data-detail>Checking…</p>
+        </div>
+        <span class="check__verdict" data-verdict>pending</span>
+      </li>
+      <li class="check" data-check="srm" data-state="pending">
+        <span class="check__icon" aria-hidden="true"></span>
+        <div class="check__body">
+          <h3 class="check__title">Sample ratio (SRM)</h3>
+          <p class="check__detail" data-detail>Checking…</p>
+        </div>
+        <span class="check__verdict" data-verdict>pending</span>
+      </li>
+      <li class="check" data-check="exposure-conversion-join" data-state="pending">
+        <span class="check__icon" aria-hidden="true"></span>
+        <div class="check__body">
+          <h3 class="check__title">Exposure → conversion join</h3>
+          <p class="check__detail" data-detail>Checking…</p>
+        </div>
+        <span class="check__verdict" data-verdict>pending</span>
+      </li>
+      <li class="check" data-check="variant-keys" data-state="pending">
+        <span class="check__icon" aria-hidden="true"></span>
+        <div class="check__body">
+          <h3 class="check__title">Multivariate variation keys</h3>
+          <p class="check__detail" data-detail>Checking…</p>
+        </div>
+        <span class="check__verdict" data-verdict>pending</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ================= A/A sanity ================= -->
+  <section class="panel" aria-labelledby="aa-heading">
+    <div class="panel__head">
+      <h2 id="aa-heading">A/A sanity test</h2>
+      <span class="panel__note">400 real visitors · identical pages · 50/50 split</span>
+    </div>
+    <div class="statrow" id="aa-stats">
+      <div class="stat"><span class="stat__label">control exposures</span><span class="stat__value" data-aa="control-exposures">—</span></div>
+      <div class="stat"><span class="stat__label">twin exposures</span><span class="stat__value" data-aa="variant-exposures">—</span></div>
+      <div class="stat"><span class="stat__label">SRM p-value</span><span class="stat__value" data-aa="srm-p">—</span></div>
+      <div class="stat"><span class="stat__label">control CVR</span><span class="stat__value" data-aa="control-cvr">—</span></div>
+      <div class="stat"><span class="stat__label">twin CVR</span><span class="stat__value" data-aa="variant-cvr">—</span></div>
+    </div>
+    <p class="interpretation" id="aa-interpretation">Waiting for the A/A run to land…</p>
+  </section>
+
+  <!-- ================= A/B results ================= -->
+  <section class="panel" aria-labelledby="ab-heading">
+    <div class="panel__head">
+      <h2 id="ab-heading">A/B results — Flagsmith Bayesian engine</h2>
+      <span class="panel__note" id="ab-as-of">as of —</span>
+    </div>
+
+    <div class="metric" id="metric-primary">
+      <div class="metric__head">
+        <h3 class="metric__title">Primary · <code>first_api_call_succeeded</code></h3>
+        <span class="metric__dir">higher is better</span>
+      </div>
+      <table class="results-table">
+        <thead>
+          <tr><th scope="col">variant</th><th scope="col">exposures</th><th scope="col">conversions</th><th scope="col">conversion rate</th></tr>
+        </thead>
+        <tbody data-primary-body>
+          <tr><td colspan="4" class="muted-row">No computed results yet.</td></tr>
+        </tbody>
+      </table>
+      <div class="inference" data-primary-inference hidden>
+        <div class="inference__item"><span>relative lift</span><strong data-primary="lift">—</strong></div>
+        <div class="inference__item"><span>95% credible interval</span><strong data-primary="ci">—</strong></div>
+        <div class="inference__item"><span>chance to win</span><strong data-primary="win">—</strong></div>
+      </div>
+    </div>
+
+    <div class="metric" id="metric-guardrail">
+      <div class="metric__head">
+        <h3 class="metric__title">Guardrail · <code>sdk_snippet_exported</code></h3>
+        <span class="metric__dir">must not decrease</span>
+      </div>
+      <table class="results-table">
+        <thead>
+          <tr><th scope="col">variant</th><th scope="col">exposures</th><th scope="col">conversions</th><th scope="col">conversion rate</th></tr>
+        </thead>
+        <tbody data-guardrail-body>
+          <tr><td colspan="4" class="muted-row">No computed results yet.</td></tr>
+        </tbody>
+      </table>
+      <div class="inference" data-guardrail-inference hidden>
+        <div class="inference__item"><span>relative lift</span><strong data-guardrail="lift">—</strong></div>
+        <div class="inference__item"><span>95% credible interval</span><strong data-guardrail="ci">—</strong></div>
+        <div class="inference__item"><span>chance to win</span><strong data-guardrail="win">—</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= decision ================= -->
+  <section class="panel panel--decision" aria-labelledby="decision-heading">
+    <div class="panel__head">
+      <h2 id="decision-heading">Honest decision</h2>
+      <span class="panel__note">what we ship, and what we fix first</span>
+    </div>
+    <div class="decision" id="decision-card" data-tone="pending">
+      <p class="decision__verdict" id="decision-verdict">Reading the results…</p>
+      <p class="decision__body" id="decision-body">
+        We do not ship on the primary metric alone.
+      </p>
+      <ul class="decision__actions" id="decision-actions">
+        <li>Re-run the wiring checks after every traffic batch.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel panel--foot">
+    <p class="audit-foot">
+      Numbers above are read live from the self-hosted Flagsmith Results API.
+      Results from simulated traffic are labelled as such in the README — no metric here is
+      presented as production data.
+    </p>
+  </section>
+
+</main>
+
+<footer class="bottombar">
+  <div class="bottombar__inner">
+    <span class="bottombar__item">
+      <span class="status-dot" data-state="ok" aria-hidden="true"></span>
+      <span>Flagsmith: connected (self-hosted)</span>
+    </span>
+    <span class="bottombar__item bottombar__item--muted">
+      experiment <code>quickstart_experience</code> · primary <code>first_api_call_succeeded</code>
+    </span>
+    <span class="bottombar__item bottombar__item--muted">guardrail <code>sdk_snippet_exported</code></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="/audit.js" type="module"></script>
+</body>
+</html>

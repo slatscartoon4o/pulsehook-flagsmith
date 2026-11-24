@@ -1,0 +1,10 @@
+node_modules/
+.env
+flagsmith.env
+artifacts/tmp/
+docs/demo/*.mp4
+demo-artifacts/
+*.log
+.DS_Store
+playwright-report/
+test-results/

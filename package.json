@@ -1,0 +1,29 @@
+{
+  "name": "pulsehook-flagsmith",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PulseHook — a developer webhook SDK quickstart lab, A/B tested end-to-end with self-hosted Flagsmith (Toggle Wars Track 01).",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "vitest run",
+    "bootstrap": "node scripts/bootstrap-flagsmith.mjs",
+    "verify": "node scripts/verify-wiring.mjs",
+    "simulate:aa": "node scripts/simulate-aa.mjs",
+    "simulate:ab": "node scripts/simulate-ab.mjs",
+    "capture": "node scripts/capture-demo.mjs",
+    "secret-scan": "node scripts/secret-scan.mjs"
+  },
+  "dependencies": {
+    "@flagsmith/nodejs": "^9.5.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1",
+    "vitest": "^2.1.8"
+  }
+}

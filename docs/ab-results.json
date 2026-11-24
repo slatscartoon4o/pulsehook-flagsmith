@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-11-24T21:48:36.531Z",
+  "experiment": {
+    "id": 34,
+    "feature": "quickstart_experience"
+  },
+  "hypothesis": "Using Flagsmith multivariate flag quickstart_experience (control: copy_checklist vs variant: interactive_sandbox, 50/50), a pre-filled live interactive webhook sandbox increases first_api_call_succeeded by at least +15% relative lift, while sdk_snippet_exported (guardrail) is watched to make sure developers still take the SDK into their own repo.",
+  "traffic": {
+    "method": "real HTTP requests, one cookie jar per visitor",
+    "visitors": 1200,
+    "seed": 20261126,
+    "disclosure": "Simulated developer traffic driven by documented behavioral personas (see scripts/simulate-ab.mjs). This is not production traffic and the README says so. Variant assignment is real: it comes from Flagsmith.",
+    "personas": {
+      "senior": {
+        "label": "Senior / Hurried Dev",
+        "share": 0.35,
+        "description": "Knows the docs already; wants the snippet and out.",
+        "behavior": {
+          "copy_checklist": {
+            "firstCall": 0.58,
+            "export": 0.46
+          },
+          "interactive_sandbox": {
+            "firstCall": 0.72,
+            "export": 0.38
+          }
+        }
+      },
+      "explorer": {
+        "label": "Explorer / Evaluator",
+        "share": 0.45,
+        "description": "Wants to see the API work before reading further.",
+        "behavior": {
+          "copy_checklist": {
+            "firstCall": 0.4,
+            "export": 0.3
+          },
+          "interactive_sandbox": {
+            "firstCall": 0.74,
+            "export": 0.21
+          }
+        }
+      },
+      "impatient": {
+        "label": "Impatient / Bouncer",
+        "share": 0.2,
+        "description": "Bails at the first sign of friction.",
+        "behavior": {
+          "copy_checklist": {
+            "firstCall": 0.18,
+            "export": 0.14
+          },
+          "interactive_sandbox": {
+            "firstCall": 0.42,
+            "export": 0.12
+          }
+        }
+      }
+    }
+  },
+  "clientSide": {
+    "byVariant": {
+      "copy_checklist": {
+        "visitors": 597,
+        "firstCall": 250,
+        "export": 195,
+        "personas": {
+          "impatient": 114,
+          "explorer": 266,
+          "senior": 217
+        }
+      },
+      "interactive_sandbox": {
+        "visitors": 603,
+        "firstCall": 413,
+        "export": 150,
+        "personas": {
+          "explorer": 269,
+          "senior": 218,
+          "impatient": 116
+        }
+      }
+    },
+    "srm": {
+      "chiSq": 0.04079933388842631,
+      "p": 0.8399257537340392,
+      "expected": 600.5
+    }
+  },
+  "flagsmith": {
+    "asOfExposures": "2026-11-24T21:47:56.535401Z",
+    "asOfResults": "2026-11-24T21:48:11.830017Z",
+    "exposures": {
+      "control": 597,
+      "interactive_sandbox": 604
+    },
+    "srmPValue": null,
+    "primary": {
+      "metricId": 34,
+      "control": {
+        "exposures": 597,
+        "conversions": 250,
+        "rate": 0.4187604690117253
+      },
+      "variant": {
+        "exposures": 604,
+        "conversions": 414,
+        "rate": 0.6854304635761589
+      },
+      "inference": {
+        "lift": 0.6368079470198673,
+        "ci_low": 0.45847915507366443,
+        "ci_high": 0.8151367389660702,
+        "chance_to_win": 0.9999999999987108
+      }
+    },
+    "guardrail": {
+      "metricId": 35,
+      "control": {
+        "exposures": 597,
+        "conversions": 195,
+        "rate": 0.32663316582914576
+      },
+      "variant": {
+        "exposures": 604,
+        "conversions": 151,
+        "rate": 0.25
+      },
+      "inference": {
+        "lift": -0.23461538461538467,
+        "ci_low": -0.372382865367292,
+        "ci_high": -0.09684790386347736,
+        "chance_to_win": 0.0004222511415311603
+      }
+    }
+  },
+  "verdict": {
+    "tone": "mixed",
+    "summary": "Primary metric clears the bar but the guardrail regresses. Do not roll the sandbox out at 100%.",
+    "detail": "The sandbox raises first_api_call_succeeded with an interval strictly above zero, while sdk_snippet_exported falls with an interval strictly below zero: some developers finish playing in the browser and leave without exporting the code. Ship a v2 that auto-surfaces the export card after the first successful call, then re-test with the guardrail as the primary metric."
+  }
+}
